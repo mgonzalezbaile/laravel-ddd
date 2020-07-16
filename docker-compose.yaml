@@ -15,8 +15,8 @@ services:
     image: mgonzalezbaile/php-fpm-dev:7.4
     user: "${UID}:${GID}"
     container_name: laravel
-    working_dir: /srv/app
+    working_dir: /srv/app/ddd-app
     environment:
-      COMPOSER_HOME: /srv/app/.composer
+      COMPOSER_HOME: /srv/app/ddd-app/.composer
     volumes:
       - .:/srv/app
