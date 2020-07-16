@@ -12,6 +12,8 @@
         "fideloper/proxy": "^4.2",
         "fruitcake/laravel-cors": "^1.0",
         "guzzlehttp/guzzle": "^6.3",
+        "laravel-doctrine/migrations": "^2.1",
+        "laravel-doctrine/orm": "^1.6",
         "laravel/framework": "^7.0",
         "laravel/tinker": "^2.0"
     },
