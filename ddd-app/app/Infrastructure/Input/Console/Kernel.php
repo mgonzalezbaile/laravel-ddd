@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Console;
+namespace App\Infrastructure\Input\Console;
 
+use App\Infrastructure\Input\Console\Command\ExampleCommand;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -13,7 +14,7 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        //
+        ExampleCommand::class
     ];
 
     /**
