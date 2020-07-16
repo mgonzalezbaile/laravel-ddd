@@ -12,7 +12,9 @@ services:
     container_name: nginx
 
   laravel:
-    image: mgonzalezbaile/php-fpm-dev:7.4
+    build:
+      dockerfile: Dockerfile
+      context: .
     user: "${UID}:${GID}"
     container_name: laravel
     working_dir: /srv/app/ddd-app
@@ -20,3 +22,16 @@ services:
       COMPOSER_HOME: /srv/app/ddd-app/.composer
     volumes:
       - .:/srv/app
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "test"
+      MYSQL_DATABASE: "test"
+      MYSQL_USER: "test"
+      MYSQL_PASSWORD: "test"
