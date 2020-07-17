@@ -5,6 +5,7 @@ namespace App\Infrastructure\Input\Http\Api\Restful;
 
 
 use App\Infrastructure\Input\Http\Controller;
+use Ddd\CommonCommandBus;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Psr\Http\Message\ResponseInterface;
@@ -20,6 +21,13 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class AbstractRestfulResource extends Controller
 {
+    protected CommonCommandBus $commandBus;
+
+    public function __construct(CommonCommandBus $commandBus)
+    {
+        $this->commandBus = $commandBus;
+    }
+
     public function __invoke(Request $request): Response
     {
         $httpVerb = strtolower($request->getMethod());

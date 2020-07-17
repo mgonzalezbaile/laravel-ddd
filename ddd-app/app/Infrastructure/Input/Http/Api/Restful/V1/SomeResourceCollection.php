@@ -5,47 +5,40 @@ namespace App\Infrastructure\Input\Http\Api\Restful\V1;
 
 
 use App\Domain\UseCase\CreateResource;
-use App\Domain\UseCase\CreateResourceUseCase;
 use App\Infrastructure\Input\Http\Api\Restful\AbstractRestfulResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 final class SomeResourceCollection extends AbstractRestfulResource
 {
-    private CreateResourceUseCase $useCase;
-
-    public function __construct(CreateResourceUseCase $useCase)
-    {
-        $this->useCase = $useCase;
-    }
-
     public function get(Request $request): JsonResponse
     {
-        return new JsonResponse([
-            [
-                'id'   => '1',
-                'name' => 'resource name',
-                'attr' => 'resource attr',
-            ],
-            [
-                'id'   => '2',
-                'name' => 'resource name',
-                'attr' => 'resource attr',
-            ]
-        ]);
+        $resources = DB::table('resources')
+            ->where($this->filteredByQueryParams($request))
+            ->paginate();
+
+        return new JsonResponse($resources);
+    }
+
+    private function filteredByQueryParams(Request $request): ?array
+    {
+        $byName = $request->query('name') ? ['name', '=', $request->query('name')] : [];
+        $byAttr = $request->query('attr') ? ['attr', '=', $request->query('attr')] : [];
+        $byId   = $request->query('id') ? ['id', '=', $request->query('id')] : [];
+
+        $query = [$byName, $byAttr, $byId];
+
+        return array_values(array_filter($query));
     }
 
     public function post(Request $request)
     {
-        $result = $this->useCase->execute(new CreateResource(
+        $result = $this->commandBus->handle(new CreateResource(
             $request->input('name'),
             $request->input('attr'),
         ));
 
-        return new JsonResponse([
-            'id'   => $result->aggregateRootList()->first()->id(),
-            'name' => $result->aggregateRootList()->first()->name(),
-            'attr' => $result->aggregateRootList()->first()->attr(),
-        ]);
+        return new JsonResponse(['id' => $result->aggregateRootList()->first()->id()]);
     }
 }
