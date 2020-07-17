@@ -5,30 +5,29 @@ declare(strict_types=1);
 
 namespace App\Domain\Model;
 
-
+use Ddd\DoctrineEntity;
+use Doctrine\ORM\Mapping AS ORM;
 use Ddd\AggregateRoot;
 
-final class Resource implements AggregateRoot
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="resources")
+ */
+final class Resource extends DoctrineEntity implements AggregateRoot
 {
-    private string $id;
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     */
     private string $name;
+
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     */
     private string $attr;
 
     public static function new(): self
     {
         return new self();
-    }
-
-    public function id(): string
-    {
-        return $this->id;
-    }
-
-    public function setId(string $id): self
-    {
-        $this->id = $id;
-
-        return $this;
     }
 
     public function name(): string
