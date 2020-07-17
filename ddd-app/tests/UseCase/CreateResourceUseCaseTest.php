@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\UseCase;
 
 use App\Domain\Event\ResourceCreated;
 use App\Domain\Model\Resource;

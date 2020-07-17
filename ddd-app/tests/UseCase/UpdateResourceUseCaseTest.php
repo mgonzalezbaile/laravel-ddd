@@ -1,10 +1,8 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\UseCase;
 
-use App\Domain\Event\ResourceCreated;
 use App\Domain\Model\Resource;
-use App\Domain\UseCase\CreateResource;
 use App\Domain\UseCase\UpdateResource;
 use Ddd\FakeUuidGenerator;
 use Ddd\UseCaseScenario;
