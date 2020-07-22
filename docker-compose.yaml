@@ -35,3 +35,8 @@ services:
       MYSQL_DATABASE: "test"
       MYSQL_USER: "test"
       MYSQL_PASSWORD: "test"
+
+  redis:
+    image: redis
+    ports:
+    - "6379:6379"
