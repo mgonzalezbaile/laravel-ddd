@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Ddd;
 
+use Illuminate\Support\Facades\Queue;
 use PHPUnit\Framework\Assert as PHPUnitAssert;
 use Throwable;
 
-class UseCaseScenario extends CommonScenario
+abstract class UseCaseScenario extends CommonScenario
 {
     private UseCaseResponse  $useCaseResponse;
     private                  $repository;
@@ -28,6 +29,7 @@ class UseCaseScenario extends CommonScenario
 
     public function when(Command $command): self
     {
+        Queue::fake();
         $commandBus = new CommonCommandBus();
 
         try {
