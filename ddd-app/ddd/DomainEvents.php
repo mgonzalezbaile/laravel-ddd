@@ -7,7 +7,7 @@ namespace Ddd;
 use ArrayIterator;
 use IteratorAggregate;
 
-class DomainEventsList implements IteratorAggregate
+class DomainEvents implements IteratorAggregate
 {
     /**
      * @var DomainEvent[]
@@ -19,7 +19,7 @@ class DomainEventsList implements IteratorAggregate
         $this->domainEvents = $domainEvents;
     }
 
-    public static function fromDomainEvents(DomainEvent ...$domainEvent): self
+    public static function new(DomainEvent ...$domainEvent): self
     {
         return new self($domainEvent);
     }

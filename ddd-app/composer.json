@@ -15,7 +15,8 @@
         "laravel-doctrine/migrations": "^2.1",
         "laravel-doctrine/orm": "^1.6",
         "laravel/framework": "^7.0",
-        "laravel/tinker": "^2.0"
+        "laravel/tinker": "^2.0",
+        "predis/predis": "^1.1"
     },
     "require-dev": {
         "facade/ignition": "^2.0",

@@ -16,7 +16,7 @@ final class UpdateResource implements Command
 
     public function __construct(string $id, string $name, string $attr)
     {
-        $this->id = $id;
+        $this->id   = $id;
         $this->name = $name;
         $this->attr = $attr;
     }

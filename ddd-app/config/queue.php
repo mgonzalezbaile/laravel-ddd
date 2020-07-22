@@ -86,4 +86,13 @@ return [
         'table' => 'failed_jobs',
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Events Queue Name
+    |--------------------------------------------------------------------------
+    |
+    | The name of the queue where events produced by this app will be published to.
+    |
+    */
+    'events_queue' => env('APP_NAME', 'default'),
 ];

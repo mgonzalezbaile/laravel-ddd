@@ -6,14 +6,13 @@ declare(strict_types=1);
 namespace App\Domain\Model;
 
 use Ddd\DoctrineEntity;
-use Doctrine\ORM\Mapping AS ORM;
-use Ddd\AggregateRoot;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
  * @ORM\Table(name="resources")
  */
-final class Resource extends DoctrineEntity implements AggregateRoot
+final class Resource extends DoctrineEntity
 {
     /**
      * @ORM\Column(type="string", nullable=true)

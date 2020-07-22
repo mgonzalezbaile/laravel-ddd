@@ -4,12 +4,16 @@ namespace App\Domain\UseCase;
 
 use App\Domain\Event\ResourceCreated;
 use App\Domain\Model\Resource;
-use Ddd\AggregateRootList;
 use Ddd\Command;
-use Ddd\DomainEventsList;
+use Ddd\DomainEvents;
+use Ddd\Entities;
+use Ddd\LaravelJob;
+use Ddd\LaravelJobDispatcher;
 use Ddd\UseCase;
 use Ddd\UseCaseResponse;
 use Ddd\UuidGenerator;
+
+//use Ddd\EventPublished;
 
 final class CreateResourceUseCase implements UseCase
 {
@@ -30,9 +34,9 @@ final class CreateResourceUseCase implements UseCase
             ->setName($command->name())
             ->setAttr($command->attr());
 
-        return new UseCaseResponse(
-            AggregateRootList::fromAggregateRoots($resource),
-            DomainEventsList::fromDomainEvents(new ResourceCreated($resource))
+        return UseCaseResponse::new(
+            Entities::new($resource),
+            DomainEvents::new(new ResourceCreated($resource))
         );
     }
 }

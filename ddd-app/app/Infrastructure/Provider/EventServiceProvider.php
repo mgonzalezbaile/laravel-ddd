@@ -6,6 +6,8 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
+//use Ddd\LaravelSubscriber;
+
 class EventServiceProvider extends ServiceProvider
 {
     /**
@@ -17,7 +19,14 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
+//        ResourceCreated::class => [
+//            ResourceCreatedPolicy::class
+//        ]
     ];
+
+//    protected $subscribe = [
+//        LaravelSubscriber::class,
+//    ];
 
     /**
      * Register any events for your application.
@@ -30,4 +39,16 @@ class EventServiceProvider extends ServiceProvider
 
         //
     }
+//
+//    public function shouldDiscoverEvents()
+//    {
+//        return true;
+//    }
+//
+//    protected function discoverEventsWithin()
+//    {
+//        return [
+//            $this->app->path('Event'),
+//        ];
+//    }
 }

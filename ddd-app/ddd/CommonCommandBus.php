@@ -13,15 +13,19 @@ class CommonCommandBus
         $useCase  = $this->useCaseOfCommand($command);
         $response = $useCase->execute($command);
 
-        collect($response->aggregateRootList())->map(static function (AggregateRoot $aggregateRoot) {
-            if (!EntityManager::find(get_class($aggregateRoot), $aggregateRoot->id())) {
-                EntityManager::persist($aggregateRoot);
+        collect($response->entities())->map(static function (Entity $entity) {
+            if (!EntityManager::find(get_class($entity), $entity->id())) {
+                EntityManager::persist($entity);
             }
 
-            return $aggregateRoot;
+            return $entity;
         });
 
         EntityManager::flush();
+
+        collect($response->domainEventList())->map(static function (DomainEvent $event) {
+            EventPublisher::dispatch($event)->onQueue(config('queue.events_queue'));
+        });
 
         return $response;
     }

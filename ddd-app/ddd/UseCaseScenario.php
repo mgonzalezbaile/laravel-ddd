@@ -9,11 +9,11 @@ use Throwable;
 
 class UseCaseScenario extends CommonScenario
 {
-    private UseCaseResponse $useCaseResponse;
-    private                 $repository;
-    private Throwable      $exception;
+    private UseCaseResponse  $useCaseResponse;
+    private                  $repository;
+    private ?Throwable       $exception = null;
 
-    public function given(AggregateRoot ...$entities): self
+    public function given(Entity ...$entities): self
     {
         collect($entities)->map(
             function (DoctrineEntity $entity) {
@@ -41,17 +41,25 @@ class UseCaseScenario extends CommonScenario
 
     public function thenExpectEvents(DomainEvent ...$domainEventList): self
     {
+        if ($this->exception) {
+            throw $this->exception;
+        }
+
         PHPUnitAssert::assertEquals($domainEventList, $this->useCaseResponse->domainEventList()->asArray());
 
         return $this;
     }
 
-    public function thenExpectAggregateRoots(AggregateRoot ...$aggregateRootList): self
+    public function thenExpectAggregateRoots(Entity ...$aggregateRootList): self
     {
-        collect($this->useCaseResponse->aggregateRootList()->asArray())
+        if ($this->exception) {
+            throw $this->exception;
+        }
+
+        collect($this->useCaseResponse->entities()->asArray())
             ->map(fn(DoctrineEntity $entity) => $entity->setCreatedAt(null)->setUpdatedAt(null)->setVersion(null));
 
-        PHPUnitAssert::assertEquals($aggregateRootList, $this->useCaseResponse->aggregateRootList()->asArray());
+        PHPUnitAssert::assertEquals($aggregateRootList, $this->useCaseResponse->entities()->asArray());
 
         return $this;
     }
@@ -67,10 +75,10 @@ class UseCaseScenario extends CommonScenario
         return $this;
     }
 
-    public function thenExpectDeletedAggregateRoots(AggregateRoot ...$aggregateRootList): self
+    public function thenExpectDeletedAggregateRoots(Entity ...$entities): self
     {
-        foreach ($aggregateRootList as $aggregateRoot) {
-            PHPUnitAssert::assertNull($this->repository->findOfId($aggregateRoot->id()));
+        foreach ($entities as $entity) {
+            PHPUnitAssert::assertNull($this->repository->findOfId($entity->id()));
         }
 
         return $this;

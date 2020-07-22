@@ -39,6 +39,6 @@ final class SomeResourceCollection extends AbstractRestfulResource
             $request->input('attr'),
         ));
 
-        return new JsonResponse(['id' => $result->aggregateRootList()->first()->id()]);
+        return new JsonResponse(['id' => $result->entities()->first()->id()]);
     }
 }

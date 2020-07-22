@@ -11,14 +11,14 @@ use Tests\TestCase;
 abstract class CommonScenario extends TestCase
 {
     protected EntityManager $entityManager;
-    protected array $mockedServices;
+    protected array         $mockedServices;
 
     public function setUp(): void
     {
         parent::setUp();
         $this->entityManager = $this->app['em'];
-        $st = new SchemaTool($this->entityManager);
-        $classes = $this->entityManager->getMetadataFactory()->getAllMetadata();
+        $st                  = new SchemaTool($this->entityManager);
+        $classes             = $this->entityManager->getMetadataFactory()->getAllMetadata();
         $st->updateSchema($classes);
     }
 

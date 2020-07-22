@@ -7,10 +7,11 @@ namespace App\Domain\UseCase;
 
 
 use App\Domain\Model\ResourceRepository;
-use Ddd\AggregateRootList;
 use Ddd\Command;
+use Ddd\Entities;
 use Ddd\UseCase;
 use Ddd\UseCaseResponse;
+use DomainException;
 
 final class UpdateResourceUseCase implements UseCase
 {
@@ -28,14 +29,14 @@ final class UpdateResourceUseCase implements UseCase
     {
         $resource = $this->repository->findById($command->id());
 
-        if(!$resource){
-            throw new \DomainException("Resource '{$command->id()}' does not exist");
+        if (!$resource) {
+            throw new DomainException("Resource '{$command->id()}' does not exist");
         }
 
         $resource
             ->setName($command->name())
             ->setAttr($command->attr());
 
-        return new UseCaseResponse(AggregateRootList::fromAggregateRoots($resource));
+        return UseCaseResponse::new(Entities::new($resource));
     }
 }
