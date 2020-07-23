@@ -7,13 +7,9 @@ use App\Domain\Model\Resource;
 use Ddd\Command;
 use Ddd\DomainEvents;
 use Ddd\Entities;
-use Ddd\LaravelJob;
-use Ddd\LaravelJobDispatcher;
 use Ddd\UseCase;
 use Ddd\UseCaseResponse;
 use Ddd\UuidGenerator;
-
-//use Ddd\EventPublished;
 
 final class CreateResourceUseCase implements UseCase
 {
