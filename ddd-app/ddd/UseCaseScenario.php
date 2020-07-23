@@ -30,7 +30,7 @@ abstract class UseCaseScenario extends CommonScenario
     public function when(Command $command): self
     {
         Queue::fake();
-        $commandBus = new CommonCommandBus();
+        $commandBus = new CommonCommandBus(new DummyMessageTracer());
 
         try {
             $this->useCaseResponse = $commandBus->handle($command);
@@ -52,7 +52,7 @@ abstract class UseCaseScenario extends CommonScenario
         return $this;
     }
 
-    public function thenExpectAggregateRoots(Entity ...$aggregateRootList): self
+    public function thenExpectEntities(Entity ...$aggregateRootList): self
     {
         if ($this->exception) {
             throw $this->exception;
@@ -66,21 +66,10 @@ abstract class UseCaseScenario extends CommonScenario
         return $this;
     }
 
-    public function thenExpectException(string $exceptionFqcn): self
+    public function thenExpectException(\Throwable $exception): self
     {
-        $this->expectException($exceptionFqcn);
-
         if ($this->exception) {
-            throw $this->exception;
-        }
-
-        return $this;
-    }
-
-    public function thenExpectDeletedAggregateRoots(Entity ...$entities): self
-    {
-        foreach ($entities as $entity) {
-            PHPUnitAssert::assertNull($this->repository->findOfId($entity->id()));
+            PHPUnitAssert::assertEquals($exception, $this->exception);
         }
 
         return $this;
