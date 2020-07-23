@@ -24,7 +24,7 @@ class UpdateResourceUseCaseTest extends UseCaseScenario
             ->withMockedServices([UuidGenerator::class => FakeUuidGenerator::class])
             ->given($aResource)
             ->when(new UpdateResource($id, $newName, $newAttr))
-            ->thenExpectAggregateRoots($aResource->setName($newName)->setAttr($newAttr));
+            ->thenExpectEntities($aResource->setName($newName)->setAttr($newAttr));
     }
 
     public function testShouldFail_When_ResourceDoesntExist(): void
@@ -36,6 +36,6 @@ class UpdateResourceUseCaseTest extends UseCaseScenario
         $this
             ->withMockedServices([UuidGenerator::class => FakeUuidGenerator::class])
             ->when(new UpdateResource($id, $name, $attr))
-            ->thenExpectException(\DomainException::class);
+            ->thenExpectException(new \DomainException("Resource '$id' does not exist"));
     }
 }

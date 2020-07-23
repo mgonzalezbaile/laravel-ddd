@@ -19,7 +19,7 @@ class CreateResourceUseCaseTest extends UseCaseScenario
         $this
             ->withMockedServices([UuidGenerator::class => FakeUuidGenerator::class])
             ->when(new CreateResource($name, $attr))
-            ->thenExpectAggregateRoots(
+            ->thenExpectEntities(
                 $resource = Resource::new()
                     ->setId(FakeUuidGenerator::DEFAULT)
                     ->setName($name)
