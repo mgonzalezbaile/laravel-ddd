@@ -47,7 +47,7 @@ abstract class UseCaseScenario extends CommonScenario
             throw $this->exception;
         }
 
-        PHPUnitAssert::assertEquals($domainEventList, $this->useCaseResponse->domainEventList()->asArray());
+        PHPUnitAssert::assertEquals($domainEventList, $this->useCaseResponse->domainEvents()->asArray());
 
         return $this;
     }

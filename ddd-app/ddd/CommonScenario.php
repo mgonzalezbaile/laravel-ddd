@@ -25,7 +25,7 @@ abstract class CommonScenario extends TestCase
     public function withMockedServices(array $mockedServices): self
     {
         foreach ($mockedServices as $mockedServiceKey => $mockedServiceValue) {
-            $this->app->bind($mockedServiceKey, $mockedServiceValue);
+            $this->app->singleton($mockedServiceKey, $mockedServiceValue);
         }
 
         return $this;

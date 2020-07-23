@@ -38,4 +38,9 @@ class NextCommands implements IteratorAggregate
     {
         return $this->nextCommands;
     }
+
+    public function wrappedCommands(): array
+    {
+        return collect($this->nextCommands)->map(fn(NextCommand $command) => $command->command())->toArray();
+    }
 }

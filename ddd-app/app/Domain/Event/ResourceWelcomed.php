@@ -1,14 +1,10 @@
 <?php
 
-declare(strict_types=1);
+namespace App\Domain\Event;
 
+use Ddd\DomainEvent;
 
-namespace App\Domain\UseCase;
-
-
-use Ddd\Command;
-
-final class WelcomeResource implements Command
+class ResourceWelcomed implements DomainEvent
 {
     private string $id;
 

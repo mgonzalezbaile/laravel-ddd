@@ -5,7 +5,9 @@ namespace App\Infrastructure\Provider;
 use App\Domain\Model\Resource;
 use App\Domain\Model\ResourceRepository;
 use App\Infrastructure\Output\Persistence\DoctrineResourceRepository;
+use Ddd\DummyMessageTracer;
 use Ddd\FakeUuidGenerator;
+use Ddd\MessageTracer;
 use Ddd\RamseyUuidGenerator;
 use Ddd\UuidGenerator;
 use Illuminate\Support\ServiceProvider;
@@ -22,6 +24,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(UuidGenerator::class, RamseyUuidGenerator::class);
         $this->app->bind(ResourceRepository::class, fn($app) => new DoctrineResourceRepository($app['em'], $app['em']->getClassMetaData(Resource::class)));
         $this->app->bind(FakeUuidGenerator::class, fn($app) => FakeUuidGenerator::withUuid(FakeUuidGenerator::DEFAULT));
+        $this->app->bind(MessageTracer::class, fn($app) => new DummyMessageTracer());
     }
 
     /**

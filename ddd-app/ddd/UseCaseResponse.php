@@ -6,28 +6,28 @@ namespace Ddd;
 
 class UseCaseResponse
 {
-    private DomainEvents  $domainEventList;
+    private DomainEvents  $domainEvents;
     private Entities      $entities;
+
+    private function __construct(Entities $entities = null, DomainEvents $domainEvents = null)
+    {
+        $this->domainEvents = $domainEvents ?? DomainEvents::empty();
+        $this->entities     = $entities ?? Entities::empty();
+    }
 
     public static function empty(): self
     {
         return new self();
     }
 
-    public static function new(Entities $aggregateRootList = null, DomainEvents $domainEventList = null): self
+    public static function new(Entities $entities = null, DomainEvents $domainEventList = null): self
     {
-        return new self($aggregateRootList, $domainEventList);
+        return new self($entities, $domainEventList);
     }
 
-    private function __construct(Entities $aggregateRootList = null, DomainEvents $domainEventList = null)
+    public function domainEvents(): DomainEvents
     {
-        $this->domainEventList = $domainEventList ?? DomainEvents::empty();
-        $this->entities        = $aggregateRootList ?? Entities::empty();
-    }
-
-    public function domainEventList(): DomainEvents
-    {
-        return $this->domainEventList;
+        return $this->domainEvents;
     }
 
     public function entities(): Entities
@@ -37,7 +37,7 @@ class UseCaseResponse
 
     public function firstDomainEvent(): DomainEvent
     {
-        return $this->domainEventList->first();
+        return $this->domainEvents->first();
     }
 
     public function firstEntity(): Entity

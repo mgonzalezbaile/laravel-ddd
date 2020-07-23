@@ -8,10 +8,19 @@ use LaravelDoctrine\ORM\Facades\EntityManager;
 
 class CommonCommandBus
 {
+    private MessageTracer $messageTracer;
+
+    public function __construct(MessageTracer $messageTracer)
+    {
+        $this->messageTracer = $messageTracer;
+    }
+
     public function handle(Command $command): UseCaseResponse
     {
         $useCase  = $this->useCaseOfCommand($command);
         $response = $useCase->execute($command);
+
+        $this->messageTracer->add($command, $response->domainEvents()->asArray());
 
         collect($response->entities())->map(static function (Entity $entity) {
             if (!EntityManager::find(get_class($entity), $entity->id())) {
@@ -23,7 +32,7 @@ class CommonCommandBus
 
         EntityManager::flush();
 
-        collect($response->domainEventList())->map(static function (DomainEvent $event) {
+        collect($response->domainEvents())->map(static function (DomainEvent $event) use ($command) {
             EventPublisher::dispatch($event)->onQueue(config('queue.events_queue'));
         });
 

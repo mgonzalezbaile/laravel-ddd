@@ -24,6 +24,11 @@ final class Resource extends DoctrineEntity
      */
     private string $attr;
 
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private bool $isWelcomed = false;
+
     public static function new(): self
     {
         return new self();
@@ -49,6 +54,18 @@ final class Resource extends DoctrineEntity
     public function setAttr(string $attr): self
     {
         $this->attr = $attr;
+
+        return $this;
+    }
+
+    public function isWelcomed(): bool
+    {
+        return $this->isWelcomed;
+    }
+
+    public function setIsWelcomed(bool $isWelcomed): self
+    {
+        $this->isWelcomed = $isWelcomed;
 
         return $this;
     }
