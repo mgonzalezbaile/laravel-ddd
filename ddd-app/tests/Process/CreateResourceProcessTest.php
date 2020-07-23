@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 
-namespace Tests;
+namespace Tests\Process;
 
 
 use App\Domain\Event\AnotherThingDone;
