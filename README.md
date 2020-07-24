@@ -1,6 +1,6 @@
 # Laravel Skeleton - Domain Driven Design
 
-This project aims to bring some building blocks I've used in other frameworks to apply DDD tactical patterns with Laravel.
+This project aims to bring some building blocks I've used in other frameworks to apply DDD tactical patterns on top of Laravel.
 
 ## Set Up
 Clone the repository:
@@ -9,7 +9,7 @@ Clone the repository:
 
 Build docker containers:
 
-` env UID=$(id -u) GID=$(id -g) docker-compose build`
+`env UID=$(id -u) GID=$(id -g) docker-compose build`
 
 Install dependencies:
 
@@ -17,7 +17,7 @@ Install dependencies:
 
 Run migrations:
 
-`env UID=$(id -u) GID=$(id -g) docker-compose exec laravel  php artisan doctrine:migrations:migrate`
+`env UID=$(id -u) GID=$(id -g) docker-compose exec laravel php artisan doctrine:migrations:migrate`
 
 ## Running The Application
 To check that your local environment is working properly you can run the tests and start up the application.
@@ -82,7 +82,7 @@ curl -i -X GET \
 In this section you will learn about the list of patterns and design decisions applied in the project with concrete examples.
 
 ### Use Case
-From all the possible patterns you can find in DDD's toolkit, the one most important is the Use Case. A use case reflects a capability (feature) that your application provides to the users: place an order, send an invoice, register a new user, ...
+From all the possible tactical patterns you can find in DDD's toolkit, the most important one is the _Use Case_. A use case reflects a capability (feature) that your application provides to the users: place an order, send an invoice, register a new user, ...
 
 Because those features are the ones that define what your application does, it is crucial to make them explicit in your code base so that anyone can take a look at them and get an idea about what your system can do.
 
@@ -116,6 +116,7 @@ final class CreateResource implements Command
 ```
 
 ### The Use Case
+
 Use Cases are responsible for running the business logic that determines whether the input data and the current state of the application satisfy the acceptance criteria defined for that feature.
 
 The design is quite simple, you can inject any dependency via de constructor, and you must implement the `execute` method that receives the Command. In the `execute` method is where you make sure the acceptance criteria is satisfied and, in that case, return a `UseCaseResponse`.
@@ -127,10 +128,8 @@ The `UseCaseResponse` contains two different lists:
 #### Design Decisions
 
 The reason why both Entities and Events are returned by the Use Case is to avoid the developer to think about infrastructure details such as when to persist/save the entity in the database or when to dispatch the events. This way, you standardize these kind of actions in all your application and prevent common issues such as:
-- **How to deal with a database transaction**. Because writing operations against the database block that row until the transaction is committed, this can lead to serious performance issues really hard to spot when save calls are done all around your code. Also, managing other issues such as _Optimistic Concurrency_ becomes transparent for the developer.
-- **How to deal with pub/sub pattern**. Dispatching events and listening to them is a powerful pattern to decouple different parts of your application, favoring SRP and OCP principles from SOLID. But, chaining code with this approach can become a hell when you start dispatching events (aka jobs) all over your code. Before you can notice, your endpoints will start becoming slower in a code base where debugging is harder as long as you chain more logic.
-
-In addition, testing becomes easier when you see a Use Case as something that receives an input (the Command) and returns an output (the Events and Entities).
+- **How to deal with a database transaction**. Because writing operations against the database block that row until the transaction is committed, this can lead to serious performance issues really hard to spot when _save_ calls are done all around your code. Also, managing other issues such as _Optimistic Concurrency_ becomes transparent for the developer.
+- **How to deal with pub/sub pattern**. Dispatching events and listening to them is a powerful pattern to decouple different parts of your application, favoring SRP and OCP principles from SOLID. But, chaining code with this approach can become a hell when you start dispatching events (aka jobs) all over your code. Before you can notice, your endpoints will start becoming slower in a code base where debugging is harder as long as you chain more and morelogic.
 
 ```php
 final class CreateResourceUseCase implements UseCase
@@ -161,12 +160,13 @@ final class CreateResourceUseCase implements UseCase
 ```
 
 #### Testing Use Cases
+Testing becomes easier when you see a Use Case as something that receives an input (the Command) and returns an output (the Events and Entities).
 
 As explained before, use cases represent the features that your application provides to your users. Therefore, testing them becomes critical and helps with:
 - Ensure that your features are covered against changes in your code. In this sense, tests need to be robust and decoupled from the implementation internals to allow developers refactor the code while tests ensure that the behavior of the feature didn't unexpectedly change.
 - Act as documentation of your code to let someone understand the different scenarios you might encounter when running the use case.
 
-Let's see how this can be done with an example where we update an existing _Resource_:
+Let's see how this can be done with an example where we update an existing _Resource_ in a happy path scenario:
 
 ```php
     public function testShouldUpdateResource(): void
@@ -179,17 +179,18 @@ Let's see how this can be done with an example where we update an existing _Reso
 
         $newName = 'new name';
         $newAttr    = 'new attr';
+
         $this
-            ->withMockedServices([UuidGenerator::class => FakeUuidGenerator::class])
-            ->given($aResource)
-            ->when(new UpdateResource($id, $newName, $newAttr))
-            ->thenExpectEntities($aResource->setName($newName)->setAttr($newAttr));
+            ->withMockedServices([UuidGenerator::class => FakeUuidGenerator::class]) // This is a helper method to mock the dependencies injected via constructor to the use case
+            ->given($aResource) // We want to update a resource that already exists in the database
+            ->when(new UpdateResource($id, $newName, $newAttr)) // Here we define the use case we want to test
+            ->thenExpectEntities($aResource->setName($newName)->setAttr($newAttr)); // Here we assert the output (entities) returned by the use case. Notice that the state of the Resource has changed. 
     }
 ```
 
-In the previous test we don't know anything about the internal details of the use case (apart from the explicit dependencies). We just know that, **given** a resource that already exists, **when** we want to update it, **then** we expect the state of the resource with the new input applied and an event that will notify about the fact.
+In the previous test we don't know anything about the internal details of the use case (apart from the explicit dependencies injected in the constructor). We just know that, **given** a resource that already exists, **when** we want to update it, **then** we expect the state of the resource with the new input applied (and possibly the events that will notify about the fact).
 
-Another example to show a different scenario for the same use case:
+Another example to show a failing scenario for the same use case:
 
 ```php
     public function testShouldFail_When_ResourceDoesntExist(): void
@@ -224,14 +225,14 @@ final class ResourceCreatedPolicy implements Policy
     public function when(DomainEvent $event): NextCommands
     {
         return NextCommands::new(
-            NextCommand::new(new WelcomeResource($event->id()), config('queue.events_queue')),
-            NextCommand::new(new DoSomething(), config('queue.events_queue')),
+            NextCommand::new(new WelcomeResource($event->id())),
+            NextCommand::new(new DoSomething()),
         );
     }
 }
 ```
 
-By defining the previous class, we are creating a listener to the event `ResourceCreated` that will dispatch two different commands when that event is received. In this case, we are dispatching:
+By implementing the previous class, we are creating a listener subscribed to the event `ResourceCreated` that will dispatch two different commands when that event is received. In this case, we are dispatching:
 - `WelcomeResource` command which will trigger the `WelcomeResourceUseCase` automatically.
 - `DoSomething` command which will trigger the `DoSomethingUseCase` automatically.
 
@@ -247,16 +248,16 @@ final class CreateResourceProcessTest extends BusinessProcessScenario
         $entities = [];
 
         $this
-            ->given(...$entities)
-            ->when(new CreateResource('some name', 'some attr'))
+            ->given(...$entities) // Again we can provide some entities that need to exist in the database for the first Use Case to run
+            ->when(new CreateResource('some name', 'some attr')) // This is the first Use Case that will trigger the workflow
             ->then([
-                CreateResource::class => [
-                    ResourceCreated::class => [
-                        WelcomeResource::class => [
-                            ResourceWelcomed::class => []
+                CreateResource::class => [ // This is the first Use Case that is executed
+                    ResourceCreated::class => [ // This is the event returned by the CreateResource use case
+                        WelcomeResource::class => [ // This is a Use Case that will be executed when a Resource is created
+                            ResourceWelcomed::class => [] // This is the event returned by the WelcomeResource use case. Notice the empty array assignation to define that there are not more use cases chained.
                         ],
-                        DoSomething::class     => [
-                            SomethingDone::class => []
+                        DoSomething::class     => [ // This is also a Use Case that will be executed when a Resource is created
+                            SomethingDone::class => [] // This is the event returned by the DoSomething use case. Notice the empty array assignation to define that there are not more use cases chained.
                         ]
                     ]
                 ]
@@ -265,7 +266,7 @@ final class CreateResourceProcessTest extends BusinessProcessScenario
 }
 ```
 
-Although the test might look a bit hard to read at first glance, it clearly represents the execution flow of commands and events. Thanks to this test, we have a place where we can clearly see how the execution of different use cases are chained as well as which events trigger which commands.
+Although the test might look a bit hard to read at first glance, it clearly represents the execution flow of commands and events. Thanks to this test, we have a place where we can clearly see how the execution of different use cases are chained as well as which events trigger which use cases.
 
 ## Async Listeners
 In order to consume both events and commands asynchronously a worker must be executed:
