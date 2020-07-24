@@ -268,7 +268,7 @@ final class CreateResourceProcessTest extends BusinessProcessScenario
 
 Although the test might look a bit hard to read at first glance, it clearly represents the execution flow of commands and events. Thanks to this test, we have a place where we can clearly see how the execution of different use cases are chained as well as which events trigger which use cases.
 
-## Async Listeners
+### Async Listeners
 In order to consume both events and commands asynchronously a worker must be executed:
 
 `env UID=(id -u) GID=(id -g) docker-compose exec laravel php artisan queue:work --queue=laravel-ddd --tries=5 --delay=1` 
@@ -278,3 +278,34 @@ In order to consume both events and commands asynchronously a worker must be exe
 - `--delay`: Time in seconds to wait between attempts.
 
 After the maximum number of attempts is reached the message is stored in the `failed_jobs` database table.
+
+## Hexagonal Architecture
+
+Hexagonal Architecture (aka Clean Architecture, Ports & Adapters Architecture, Onion Architecture, ...) focuses on defining a clear separation between two concepts mainly that involve any given application:
+- **The Domain**: The Domain layer is the place where you define the business behavior of your application, that is, the Models, Events, Use Cases and Policies. Here we, as developers, must be focused on capturing the Ubiquitous Language used in the company to explicitly represent the concepts of our business.
+- **The Infrastructure**: The Infrastructure layer is responsible for providing the connectors between our domain (business logic) and the exterior. Here we can divide the different components into two groups:
+    - Input: Provides mechanisms for an external client to execute a Use Case.
+        - Controllers: In order to execute a Use Case, we might need an API to allow a client send a request to our server.
+        - CLI Commands: Sometimes we might need to run a use case via a console command.
+    - Output: Provides mechanisms for our application to talk to external systems.
+        - Persistence: In order to preserve the state of our system we need to store it in some database.
+        - Third party systems: We might need from an external application to run a use case, such as a Payment Gateway (i.e. stripe, braintree and so on) to perform a payment.
+ 
+ This Laravel Skeleton provides a directory structure ready to organize your code based on the Hexagonal Architecture principles (see `app/Domain` and `app/Infrastructure` folders).
+
+Find below an example of a Controller that receives an HTTP Request, extracts the content from the payload and dispatchs a command to trigger the execution of its respective Use Case:
+
+```php
+final class SomeResourceCollection extends AbstractRestfulResource
+{
+    public function post(Request $request)
+    {
+        $result = $this->commandBus->handle(new CreateResource(
+            $request->input('name'),
+            $request->input('attr'),
+        ));
+
+        return new JsonResponse(['id' => $result->entities()->first()->id()]);
+    }
+}
+```
