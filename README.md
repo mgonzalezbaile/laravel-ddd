@@ -115,7 +115,7 @@ final class CreateResource implements Command
 }
 ```
 
-### The Use Case
+#### The Use Case
 
 Use Cases are responsible for running the business logic that determines whether the input data and the current state of the application satisfy the acceptance criteria defined for that feature.
 
