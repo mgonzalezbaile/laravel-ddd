@@ -208,7 +208,7 @@ Another example to show a failing scenario for the same use case:
 
 Notice that the `given` method was not called so we didn't provide an existing resource. Therefore, since the resource does not exist yet, **when** we want to update it, **then** we expect an exception telling about the error.
 
-### The Policy
+### Policy
 
 Use Cases are a crucial building block to carve out our application, but _Policies_ are also very important. If a use case represents the intention to execute some action on your application, a _Policy_ represents a reaction. They fit very well when domain experts express features such as:
 
